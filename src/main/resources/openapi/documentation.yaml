@@ -1,0 +1,349 @@
+openapi: "3.0.3"
+info:
+  title: "Application API"
+  description: "Application API"
+  version: "1.0.0"
+servers:
+  - url: "https://api-devv2.tajhotels.com/paymentService"
+  - url: "https://api-qa1v2.tajhotels.com/paymentService"
+  - url: "https://api-uatv2.tajhotels.com/paymentService"
+  - url: "http://127.0.0.1:8083"
+paths:
+  /:
+    get:
+      description: "Hello World!"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+              examples:
+                Example#1:
+                  value: "Payment service......"
+  /v1/juspay/initiate-sdk:
+    post:
+      description: "To initialise the SDK, client needs to call the initiate SDK API. The initiate api call boots up Express Checkout SDK and makes it ready for all other operations"
+      requestBody:
+        description: "A JSON object containing customer information"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InitiateSdk"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InitiateSdkRes"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequest"
+  /v1/juspay/fetch-order:
+    post:
+      description: "In order to render the payment methods on the checkout screen"
+      requestBody:
+        description: "A JSON object containing order details"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProcessSdk"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProcessSdkRes"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProcessSdkBadRequest"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json":
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+  /v1/juspay/payment-confirmation:
+    post:
+      description: "To check the status of the transaction"
+      requestBody:
+        description: "A Json object containing order Id to check the payment status for particular order"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentConfirmation"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentConfirmationRes"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentConfBadRes"
+components:
+  schemas:
+    InitiateSdk:
+      type: "object"
+      properties:
+        customerHash:
+          type: "string"
+        mobileNo:
+          type: "string"
+        emailAddress:
+          type: "string"
+    ProcessSdk:
+      type: "object"
+      properties:
+        orderId:
+          type: "string"
+        returnUrl:
+          type: "string"
+    PaymentConfirmation:
+      type: "object"
+      properties:
+        orderId:
+          type: "string"
+    InitiateSdkRes:
+      type: "object"
+      properties:
+        requestId:
+          type: "string"
+        service:
+          type: "string"
+        betaAssets:
+          type: "string"
+        payload:
+          $ref: "#/components/schemas/InitiatePayload"
+    InitiatePayload:
+      type: "object"
+      properties:
+        action:
+          type: "string"
+        merchantKeyId:
+          type: "string"
+        integrationType:
+          type: "string"
+        signaturePayload:
+          type: "string"
+        signature:
+          type: "string"
+        environment:
+          type: "string"
+        clientId:
+          type: "string"
+        hyperSDKDiv:
+          type: "string"
+        merchantId:
+          type: "string"
+    ProcessSdkRes:
+      type: "object"
+      properties:
+        payload:
+          $ref: "#/components/schemas/ProcessPayload"
+        requestId:
+          type: "string"
+        service:
+          type: "string"
+    ProcessPayload:
+      type: "object"
+      properties:
+        action:
+          type: "string"
+        amount:
+          type: "string"
+        clientId:
+          type: "string"
+        customerEmail:
+          type: "string"
+        customerId:
+          type: "string"
+        customerMobile:
+          type: "string"
+        language:
+          type: "string"
+        merchantId:
+          type: "string"
+        merchantKeyId:
+          type: "string"
+        orderDetails:
+          type: "string"
+        orderId:
+          type: "string"
+        signature:
+          type: "string"
+    PaymentConfirmationRes:
+      type: "object"
+      properties:
+        amount:
+          type: "Int"
+        amount_refunded:
+          type: "Int"
+        auth_type:
+          type: "string"
+        bank_error_code:
+          type: "string"
+        bank_error_message:
+          type: "string"
+        currency:
+          type: "string"
+        customer_email:
+          type: "string"
+        customer_id:
+          type: "string"
+        customer_phone:
+          type: "string"
+        date_created:
+          type: "string"
+        gateway_id:
+          type: "Int"
+        id:
+          type: "string"
+        mandate:
+          $ref: "#/components/schemas/PaymentConfMandate"
+        merchant_id:
+          type: "string"
+        order_id:
+          type: "string"
+        payment_gateway_response:
+          $ref: "#/components/schemas/PaymentConfGateWayRes"
+        payment_links:
+          $ref: "#/components/schemas/PaymentConPaymentLink"
+        payment_method:
+          type: "string"
+        payment_method_type:
+          type: "string"
+        product_id:
+          type: "string"
+        refunded:
+          type: "boolean"
+        status:
+          type: "string"
+        status_id:
+          type: "Int"
+        txn_id:
+          type: "string"
+        txn_uuid:
+          type: "string"
+        udf1:
+          type: "string"
+        udf10:
+          type: "string"
+        udf2:
+          type: "string"
+        udf3:
+          type: "string"
+        udf4:
+          type: "string"
+        udf5:
+          type: "string"
+        udf6:
+          type: "string"
+        udf7:
+          type: "string"
+        udf8:
+          type: "string"
+        udf9:
+          type: "string"
+    PaymentConfMandate:
+      type: "object"
+      properties:
+        mandate_id:
+          type: "string"
+        mandate_status:
+          type: "string"
+        mandate_token:
+          type: "string"
+    PaymentConfGateWayRes:
+      type: "object"
+      properties:
+        auth_id_code:
+          type: "string"
+        created:
+          type: "string"
+        epg_txn_id:
+          type: "string"
+        resp_code:
+          type: "string"
+        resp_message:
+          type: "string"
+        rrn:
+          type: "string"
+        txn_id:
+          type: "string"
+    PaymentConPaymentLink:
+      type: "object"
+      properties:
+        iframe:
+          type: "string"
+        mobile:
+          type: "string"
+        web:
+          type: "string"
+    PaymentConfBadRes:
+      type: "object"
+      properties:
+        error_code:
+          type: "string"
+        error_message:
+          type: "string"
+        order_id:
+          type: "string"
+        status:
+          type: "string"
+        status_id:
+          type: "int"
+    InternalServerError:
+      type: object
+      properties:
+        message:
+          type: string
+    BadRequest:
+      type: object
+      properties:
+        statusCode:
+          type: string
+        errorMessage:
+          type: array
+          items:
+            type: string
+        message:
+          type: string
+    ProcessSdkBadRequest:
+      type: Object
+      properties:
+        path:
+          type: string
+        timestamp:
+          type: string
+        statusCode:
+          type: Object
+          items:
+            value:
+              type: string
+            description:
+              type: string
+        data:
+          type: string
